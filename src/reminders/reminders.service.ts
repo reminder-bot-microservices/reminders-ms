@@ -1,18 +1,26 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Injectable } from '@nestjs/common';
-import { CreateReminderDto } from './dto/create-reminder.dto';
-import { UpdateReminderDto } from './dto/update-reminder.dto';
+import type { CreateReminderDto, UpdateReminderDto } from './dto';
+import { type PaginationDto } from 'src/common/dtos';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { PaginationDto } from 'src/common/dtos';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class RemindersService {
   constructor(private readonly prismaSvc: PrismaService) {}
 
   async create(createReminderDto: CreateReminderDto) {
-    return await this.prismaSvc.reminder.create({
-      data: createReminderDto,
-    });
+    // todo => validation to verify date_to_remind is in the future and not past
+    try {
+      return await this.prismaSvc.reminder.create({
+        data: createReminderDto,
+      });
+    } catch (error) {
+      throw new RpcException({
+        status: HttpStatus.BAD_REQUEST,
+        message: error,
+      });
+    }
   }
 
   async findAll(paginationDto: PaginationDto) {
@@ -34,15 +42,43 @@ export class RemindersService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} reminder`;
+  async findOne(id: number) {
+    const getReminder = await this.prismaSvc.reminder.findFirst({
+      where: { id },
+    });
+    if (!getReminder) {
+      throw new RpcException({
+        status: HttpStatus.NOT_FOUND,
+        message: `Reminder with id ${id} was not found!`,
+      });
+    }
+    return getReminder;
   }
 
-  update(id: number, updateReminderDto: UpdateReminderDto) {
-    return `This action updates a #${id} reminder`;
+  async update(id: number, updateReminderDto: UpdateReminderDto) {
+    await this.findOne(id); // if fails throws error
+    try {
+      return await this.prismaSvc.reminder.update({
+        where: { id },
+        data: updateReminderDto,
+      });
+    } catch (error) {
+      throw new RpcException({
+        status: HttpStatus.BAD_REQUEST,
+        message: error,
+      });
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} reminder`;
+  async remove(id: number) {
+    try {
+      await this.findOne(id); // if fails throws error
+      return await this.prismaSvc.reminder.delete({ where: { id } });
+    } catch (error) {
+      throw new RpcException({
+        status: HttpStatus.BAD_REQUEST,
+        message: error,
+      });
+    }
   }
 }
