@@ -9,6 +9,11 @@ import { PaginationDto } from 'src/common/dtos';
 export class RemindersController {
   constructor(private readonly remindersService: RemindersService) {}
 
+  @MessagePattern('remindersSeed')
+  seed() {
+    return this.remindersService.seeder();
+  }
+
   @MessagePattern('createReminder')
   create(@Payload() createReminderDto: CreateReminderDto) {
     return this.remindersService.create(createReminderDto);

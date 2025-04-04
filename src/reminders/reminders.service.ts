@@ -4,6 +4,7 @@ import { type PaginationDto } from 'src/common/dtos';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { RpcException } from '@nestjs/microservices';
+import { remindersSeed } from 'src/utils/db_seed';
 
 @Injectable()
 export class RemindersService {
@@ -14,6 +15,19 @@ export class RemindersService {
     try {
       return await this.prismaSvc.reminder.create({
         data: createReminderDto,
+      });
+    } catch (error) {
+      throw new RpcException({
+        status: HttpStatus.BAD_REQUEST,
+        message: error,
+      });
+    }
+  }
+
+  async seeder() {
+    try {
+      return await this.prismaSvc.reminder.createMany({
+        data: remindersSeed,
       });
     } catch (error) {
       throw new RpcException({
