@@ -6,20 +6,21 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-model reminders {
-  id                String   @id @default(auto()) @map("_id") @db.ObjectId
-  title             String
-  date_to_remind    DateTime
-  delay_to_notify   Int      @default(0)
-  repeat_on         String[] @default([])
-  completed         Boolean  @default(false)
-  extra_information String   @default("")
+model reminder {
+  id             Int      @id @default(autoincrement())
+  title          String
+  description    String?
+  date_to_remind DateTime
+  early_reminder Int?     @default(0)
+  repeat_on      String[] @default([])
+  completed      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
