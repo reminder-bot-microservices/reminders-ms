@@ -25,10 +25,10 @@ export class RemindersService {
 
   async findAll(paginationDto: PaginationDto) {
     const { limit, page } = paginationDto;
-    const totalReminders: number = await this.prismaSvc.reminder.count();
-    const lastPage: number = Math.ceil(totalReminders / page!);
+    const totalReminders = await this.prismaSvc.reminder.count();
+    const lastPage = Math.ceil(totalReminders / page!);
 
-    const reminders = this.prismaSvc.reminder.findMany({
+    const reminders = await this.prismaSvc.reminder.findMany({
       take: limit,
       skip: (page! - 1) * limit!,
     });
