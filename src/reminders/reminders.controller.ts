@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, ParseIntPipe } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { RemindersService } from './reminders.service';
 import { CreateReminderDto } from './dto/create-reminder.dto';
@@ -25,20 +25,18 @@ export class RemindersController {
   }
 
   @MessagePattern('findOneReminder')
-  findOne(@Payload() id: number) {
+  findOne(@Payload('id', ParseIntPipe) id: number) {
     return this.remindersService.findOne(id);
   }
 
   @MessagePattern('updateReminder')
-  update(@Payload() updateReminderDto: UpdateReminderDto) {
-    return this.remindersService.update(
-      updateReminderDto.id,
-      updateReminderDto,
-    );
+  // using unkown because with dto doesn't weeeeeeeeeeks
+  patch(@Payload() updateReminderDto: unknown) {
+    return this.remindersService.update(updateReminderDto as UpdateReminderDto);
   }
 
   @MessagePattern('removeReminder')
-  remove(@Payload() id: number) {
+  remove(@Payload('id', ParseIntPipe) id: number) {
     return this.remindersService.remove(id);
   }
 }

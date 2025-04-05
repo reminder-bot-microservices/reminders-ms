@@ -16,11 +16,11 @@ async function bootstrap() {
     },
   );
 
-  // this validates dtos on body
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
+      transform: true, //transform incoming data to match DTO
     }),
   );
 

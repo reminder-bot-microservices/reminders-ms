@@ -57,23 +57,23 @@ export class RemindersService {
   }
 
   async findOne(id: number) {
-    const getReminder = await this.prismaSvc.reminder.findFirst({
+    const reminder = await this.prismaSvc.reminder.findFirst({
       where: { id },
     });
-    if (!getReminder) {
+    if (!reminder) {
       throw new RpcException({
         status: HttpStatus.NOT_FOUND,
         message: `Reminder with id ${id} was not found!`,
       });
     }
-    return getReminder;
+    return reminder;
   }
 
-  async update(id: number, updateReminderDto: UpdateReminderDto) {
-    await this.findOne(id); // if fails throws error
+  async update(updateReminderDto: UpdateReminderDto) {
     try {
+      await this.findOne(updateReminderDto.id); // if fails throws error
       return await this.prismaSvc.reminder.update({
-        where: { id },
+        where: { id: updateReminderDto.id },
         data: updateReminderDto,
       });
     } catch (error) {
@@ -89,10 +89,7 @@ export class RemindersService {
       await this.findOne(id); // if fails throws error
       return await this.prismaSvc.reminder.delete({ where: { id } });
     } catch (error) {
-      throw new RpcException({
-        status: HttpStatus.BAD_REQUEST,
-        message: error,
-      });
+      throw new RpcException(error);
     }
   }
 }
