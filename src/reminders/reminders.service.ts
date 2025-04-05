@@ -5,16 +5,16 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { RpcException } from '@nestjs/microservices';
 import { remindersSeed } from 'src/utils/db_seed';
+import { validateReminder } from 'src/utils/helpers';
 
 @Injectable()
 export class RemindersService {
   constructor(private readonly prismaSvc: PrismaService) {}
 
-  async create(createReminderDto: CreateReminderDto) {
-    // todo => validation to verify date_to_remind is in the future and not past
+  async seeder() {
     try {
-      return await this.prismaSvc.reminder.create({
-        data: createReminderDto,
+      return await this.prismaSvc.reminder.createMany({
+        data: remindersSeed,
       });
     } catch (error) {
       throw new RpcException({
@@ -24,10 +24,11 @@ export class RemindersService {
     }
   }
 
-  async seeder() {
+  async create(createReminderDto: CreateReminderDto) {
+    validateReminder(createReminderDto);
     try {
-      return await this.prismaSvc.reminder.createMany({
-        data: remindersSeed,
+      return await this.prismaSvc.reminder.create({
+        data: createReminderDto,
       });
     } catch (error) {
       throw new RpcException({
@@ -72,15 +73,13 @@ export class RemindersService {
   async update(updateReminderDto: UpdateReminderDto) {
     try {
       await this.findOne(updateReminderDto.id); // if fails throws error
+      validateReminder(updateReminderDto);
       return await this.prismaSvc.reminder.update({
         where: { id: updateReminderDto.id },
         data: updateReminderDto,
       });
     } catch (error) {
-      throw new RpcException({
-        status: HttpStatus.BAD_REQUEST,
-        message: error,
-      });
+      throw new RpcException(error);
     }
   }
 
