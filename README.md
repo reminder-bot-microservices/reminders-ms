@@ -34,6 +34,17 @@ $ setup .env
 $ docker compose up -d
 $ docker run -d -p 4222:4222 -p 8222:8222 nats:latest
 ```
+- git guardin and pre-commit to avoid leaks of sensitive data
+```bash
+$ pip install pre-commit
+$ pre-commit install
+ if you want to skip all the pre-commit checks, you can add the -n parameter as follows:
+  $ git commit -m "commit message" -n
+
+# -----------
+to scan repo for secrets leaks use
+$ ggshield secret scan
+```
 
 ## Compile and run the project
 
