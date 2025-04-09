@@ -15,5 +15,7 @@ jobs:
   scanning:
     name: GitGuardian scan
     uses: reminder-bot-microservices/.github/.github/workflows/scan_leaks.yaml@main
+    secrets:
+      ggshield_access_token: ${{ secrets.ggshield_access_token }}
     with:
       ggshield_access_token: ${{ secrets.ggshield_access_token }}
