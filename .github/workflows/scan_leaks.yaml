@@ -17,4 +17,5 @@ jobs:
   scanning:
     name: GitGuardian scan
     uses: reminder-bot-microservices/.github/.github/workflows/scan_leaks.yaml@main
-    secrets: inherit
+    with:
+      GITGUARDIAN_ACCESS_TOKEN: ${{ secrets.GITGUARDIAN_ACCESS_TOKEN }}
