@@ -14,8 +14,6 @@ permissions: write-all
 jobs:
   scanning:
     name: GitGuardian scan
-    env:
-      GITGUARDIAN_ACCESS_TOKEN: ${{ secrets.GITGUARDIAN_ACCESS_TOKEN }}
     uses: reminder-bot-microservices/.github/.github/workflows/scan_leaks.yaml@main
     with:
-      GITGUARDIAN_ACCESS_TOKEN: ${{ github.env.GITGUARDIAN_ACCESS_TOKEN }}
+      ggshield_access_token: ${{ secrets.ggshield_access_token }}
