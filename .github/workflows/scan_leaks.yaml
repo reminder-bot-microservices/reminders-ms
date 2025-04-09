@@ -9,6 +9,8 @@ on:
     branches:
       - main
       - nonprod
+      - fix-vulnerabilities-pipe
+      # tempo
 permissions: write-all
 
 jobs:
