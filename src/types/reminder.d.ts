@@ -6,3 +6,19 @@ export interface IReminder {
   repeat_on: string[];
   completed?: boolean;
 }
+
+export interface IHandlePaginationReturn {
+  metadata: {
+    limit: number;
+    page: number;
+    lastPage: number;
+  };
+  skip: number;
+}
+
+export type TFiltersRange = 'day' | 'week' | 'month';
+
+export interface IHandleRemindersRangeReturn {
+  startDate: Date;
+  endDate: Date;
+}

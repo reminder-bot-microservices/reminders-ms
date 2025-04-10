@@ -1,9 +1,9 @@
+import { QueriesDto } from 'src/common/dtos/filters.dto';
 import { Controller, ParseIntPipe } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { RemindersService } from './reminders.service';
 import { CreateReminderDto } from './dto/create-reminder.dto';
 import { UpdateReminderDto } from './dto/update-reminder.dto';
-import { PaginationDto } from 'src/common/dtos';
 
 @Controller()
 export class RemindersController {
@@ -20,8 +20,8 @@ export class RemindersController {
   }
 
   @MessagePattern('findAllReminders')
-  findAll(@Payload() paginationDto: PaginationDto) {
-    return this.remindersService.findAll(paginationDto);
+  findAll(@Payload() queries: QueriesDto) {
+    return this.remindersService.findAll(queries);
   }
 
   @MessagePattern('findOneReminder')
