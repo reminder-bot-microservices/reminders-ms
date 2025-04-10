@@ -89,7 +89,14 @@ export const handleRemindersRange = (
   } else if (range === 'month') {
     // returning first and last day of the month, to get month reminders range
     startDate = new Date(today.getFullYear(), today.getMonth(), 1, 0, 0, 0);
-    endDate = new Date(today.getFullYear(), today.getMonth(), -1, 23, 59, 59);
+    endDate = new Date(
+      today.getFullYear(),
+      today.getMonth() + 1,
+      -1,
+      23,
+      59,
+      59,
+    );
   } else {
     // returning first and last day of the week, to get week reminders range
     const currentDay = today.getDay(); // day of the week => 1(monday)-7(sunday)
