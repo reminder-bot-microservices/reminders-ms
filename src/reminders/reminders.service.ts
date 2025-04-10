@@ -43,13 +43,13 @@ export class RemindersService {
   }
 
   async findAll(queries: QueriesDto) {
-    const { range, ...paginationDto } = queries;
+    const { range, completed, ...paginationDto } = queries;
     // filters
     const { startDate: gte, endDate: lte } = handleRemindersRange(range!);
 
     // pagination
     const totalReminders = await this.prismaSvc.reminder.count({
-      where: { date_to_remind: { gte, lte } },
+      where: { completed, date_to_remind: { gte, lte } },
     });
     const { skip, metadata } = handlePagination(paginationDto, totalReminders);
 
@@ -57,6 +57,7 @@ export class RemindersService {
       take: metadata.limit,
       skip,
       where: {
+        completed,
         date_to_remind: {
           gte,
           lte,
@@ -65,7 +66,11 @@ export class RemindersService {
     });
     return {
       metadata,
-      data: reminders,
+      data: reminders.sort((a, b) =>
+        a.date_to_remind
+          .toISOString()
+          .localeCompare(b.date_to_remind.toISOString()),
+      ),
     };
   }
 
