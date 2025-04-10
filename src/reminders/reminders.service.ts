@@ -1,11 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import type { QueriesDto } from 'src/common/dtos';
 import type { CreateReminderDto, UpdateReminderDto } from './dto';
-import { type PaginationDto } from 'src/common/dtos';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { RpcException } from '@nestjs/microservices';
 import { remindersSeed } from 'src/utils/db_seed';
-import { validateReminder } from 'src/utils/helpers';
+import {
+  handlePagination,
+  handleRemindersRange,
+  validateReminder,
+} from 'src/utils/helpers';
 
 @Injectable()
 export class RemindersService {
@@ -38,22 +42,35 @@ export class RemindersService {
     }
   }
 
-  async findAll(paginationDto: PaginationDto) {
-    const { limit, page } = paginationDto;
-    const totalReminders = await this.prismaSvc.reminder.count();
-    const lastPage = Math.ceil(totalReminders / page!);
+  async findAll(queries: QueriesDto) {
+    const { range, completed, ...paginationDto } = queries;
+    // filters
+    const { startDate: gte, endDate: lte } = handleRemindersRange(range!);
+
+    // pagination
+    const totalReminders = await this.prismaSvc.reminder.count({
+      where: { completed, date_to_remind: { gte, lte } },
+    });
+    const { skip, metadata } = handlePagination(paginationDto, totalReminders);
 
     const reminders = await this.prismaSvc.reminder.findMany({
-      take: limit,
-      skip: (page! - 1) * limit!,
+      take: metadata.limit,
+      skip,
+      where: {
+        completed,
+        date_to_remind: {
+          gte,
+          lte,
+        },
+      },
     });
     return {
-      metadata: {
-        limit,
-        page,
-        lastPage,
-      },
-      data: reminders,
+      metadata,
+      data: reminders.sort((a, b) =>
+        a.date_to_remind
+          .toISOString()
+          .localeCompare(b.date_to_remind.toISOString()),
+      ),
     };
   }
 
